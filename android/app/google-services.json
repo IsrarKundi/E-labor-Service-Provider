@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "531318915364",
+    "project_id": "e-labor-72141",
+    "storage_bucket": "e-labor-72141.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:531318915364:android:a914affb06e356a619b3b1",
+        "android_client_info": {
+          "package_name": "com.example.e_labors"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBrRk7yWCHp0AC6rppewzizIIq6ehh_EF0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

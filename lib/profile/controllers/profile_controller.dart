@@ -33,26 +33,27 @@ class ProfileController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    loadStoredProfileImage();
+    // loadStoredProfileImage();
     fetchUserProfile();  // Fetch user profile when the controller initializes
   }
 
-  Future<void> loadStoredProfileImage() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? base64Image = prefs.getString('profile_image');
-
-    if (base64Image != null) {
-      // Convert base64 string back to bytes and create a File
-      List<int> imageBytes = base64Decode(base64Image);
-      final Directory directory = await getTemporaryDirectory();
-      final File imageFile = File('${directory.path}/profile_image.jpg');
-      await imageFile.writeAsBytes(imageBytes);
-      profileImage.value = imageFile;
-      print('Profile image loaded from SharedPreferences');
-    }
-  }
+  // Future<void> loadStoredProfileImage() async {
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   String? base64Image = prefs.getString('profile_image');
+  //
+  //   if (base64Image != null) {
+  //     // Convert base64 string back to bytes and create a File
+  //     List<int> imageBytes = base64Decode(base64Image);
+  //     final Directory directory = await getTemporaryDirectory();
+  //     final File imageFile = File('${directory.path}/profile_image.jpg');
+  //     await imageFile.writeAsBytes(imageBytes);
+  //     profileImage.value = imageFile;
+  //     print('Profile image loaded from SharedPreferences');
+  //   }
+  // }
 
   ///........................Fetch User Profile............................
+  RxString imageUrl = ''.obs;
   Future<void> fetchUserProfile() async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -74,6 +75,7 @@ class ProfileController extends GetxController {
           email.value = responseBody['email'];
           role.value = responseBody['role'];
           lastActive.value = responseBody['lastActive'];
+          imageUrl.value = responseBody['image'];
         } else {
           Get.snackbar(
             'Error',
@@ -119,7 +121,7 @@ class ProfileController extends GetxController {
       final cancelToast = BotToast.showLoading();
 
       // Assign the picked image to the reactive variable
-      profileImage.value = image;
+      pickedImage.value = image;
 
       cancelToast(); // Cancel the loading toast
 
@@ -128,12 +130,11 @@ class ProfileController extends GetxController {
     } finally {
       BotToast.cleanAll(); // Clean up any remaining toast notifications
     }
-    print(profileImage.value);
+    print(pickedImage.value);
   }
 
 
-
-  var profileImage = Rxn<File>();
+  var pickedImage = Rxn<File>();
   var profileImageUrl = RxString('');
 
   Future<void> editProfile(BuildContext context) async {
@@ -155,9 +156,9 @@ class ProfileController extends GetxController {
         print('request made');
 
         // If the profile image is selected, add it to the request
-        if (profileImage.value != null) {
+        if (pickedImage.value != null) {
           print('profile image not null');
-          var imageFile = profileImage.value!;
+          var imageFile = pickedImage.value!;
           var imageStream = http.ByteStream(imageFile.openRead());
           var imageLength = await imageFile.length();
 
@@ -177,7 +178,7 @@ class ProfileController extends GetxController {
         print(response.statusCode);
         // Check the response status
         if (response.statusCode == 200) {
-          List<int> imageBytes = await profileImage.value!.readAsBytes();
+          List<int> imageBytes = await pickedImage.value!.readAsBytes();
           String base64Image = base64Encode(imageBytes);
           await prefs.setString('profile_image', base64Image);
           print('Profile image saved to SharedPreferences');

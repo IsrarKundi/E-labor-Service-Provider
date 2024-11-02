@@ -1,22 +1,46 @@
 import 'package:bot_toast/bot_toast.dart';
 import 'package:e_labors/profile/views/profile_screen.dart';
+import 'package:e_labors/push_notification/controllers/notification_controller.dart';
 import 'package:e_labors/routes/app_routes.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // For system chrome changes (optional)
-import 'package:get/get_navigation/src/root/get_material_app.dart';
-
-// Import your screen files here
+import 'package:flutter/services.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:get/get.dart';
 import 'home/views/home_screen.dart';
 import 'chat_screen.dart';
 import 'notification_screen.dart' as custom_notification;
 
-void main() {
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+
+  // Register the background message handler
+  FirebaseMessaging.onBackgroundMessage(NotificationController.firebaseMessagingBackgroundHandler);
+
+  // Ensure the NotificationController is initialized
+  Get.put(NotificationController());
+
+  // Check if the app was launched by a notification
+  FirebaseMessaging.instance.getInitialMessage().then((RemoteMessage? message) {
+    if (message != null) {
+      Get.find<NotificationController>().onSelectNotification(message.data['payload']);
+    }
+  });
+
   runApp(const MyApp());
+
   // Optional: Set preferred status bar styles (Android only)
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor: Colors.transparent, // Adjust as needed
   ));
 }
+
+
+
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -24,8 +48,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      title: 'Your App Name', // Replace with your app title
-      builder: BotToastInit(), // Initialize BotToast here
+      title: 'Your App Name',
+      builder: BotToastInit(),
       navigatorObservers: [BotToastNavigatorObserver()],
       theme: ThemeData(
         // Your app's theme customizations
@@ -56,6 +80,7 @@ class _MainScreenState extends State<MainScreen> {
     ProfileScreen(),
   ];
 
+  NotificationController notificationController = Get.put(NotificationController());
   @override
   void initState() {
     super.initState();

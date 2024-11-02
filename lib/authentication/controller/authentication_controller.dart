@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'package:e_labors/authentication/views/verify_email_screen.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -14,6 +16,7 @@ import '../views/forgot password2.dart';
 class AuthenticationController extends GetxController {
 
   final String baseUrl = 'https://e-labour-app.vercel.app/api/v1';
+
   // Text controllers
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
@@ -139,6 +142,12 @@ class AuthenticationController extends GetxController {
   ///......................Registration logic......................
 
   Future<void> registerUser() async {
+    await Firebase.initializeApp(); // Ensure Firebase is initialized
+
+    FirebaseMessaging messaging = FirebaseMessaging.instance;
+    String? token = await messaging.getToken();
+    print("FCM Token: $token"); // You can send the token to your backend if needed
+
     final String username = nameController.text.trim();
     final String email = emailController.text.trim();
     final String password = passwordController.text;
@@ -147,7 +156,7 @@ class AuthenticationController extends GetxController {
 
     // Check if location retrieval was successful (optional)
     if (location.latitude == 0.0 || location.longitude == 0.0) {
-      // Handle location retrieval error (e.g., show a message to user)
+      // Handle location retrieval error (e.g., show a message to the user)
       return;
     }
 
@@ -163,18 +172,18 @@ class AuthenticationController extends GetxController {
         'email': email,
         'password': password,
         'confirmPassword': confirmPassword,
-        'coordinates': '[${location.longitude},${location.latitude}]',
+        'coordinates': '[${longitude},${latitude}]',
         'role': 'service_provider',
         'contact': '122332133',
-        'jobCategory': selectedCategory.value
+        'jobCategory': selectedCategory.value,
+        'fcmToken': token, // Attach the FCM token here
       },
     );
     print(response.body);
 
-    print("api is hit");
+    print("API is hit");
     print(response.statusCode);
     if (response.statusCode == 201) {
-
       print('STATUS CODE IS: ');
       print(response.statusCode);
       // Registration successful
@@ -197,6 +206,7 @@ class AuthenticationController extends GetxController {
       );
     }
   }
+
   Future<void> getLocation() async {
     try {
       await location.getLocation(); // Call getLocation on the Location object

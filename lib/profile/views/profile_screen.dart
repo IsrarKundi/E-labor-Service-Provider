@@ -37,10 +37,10 @@ class ProfileScreen extends StatelessWidget{
                   child: Obx(() {
                     return CircleAvatar(
                       radius: 30.0,
-                      backgroundImage: profileController.profileImageUrl.isNotEmpty
-                          ? NetworkImage(profileController.profileImageUrl.value) // Load from network if URL is available
-                          : profileController.profileImage.value != null
-                          ? FileImage(profileController.profileImage.value!) // Load from file if picked image is available
+                      backgroundImage: profileController.imageUrl.isNotEmpty
+                          ? NetworkImage(profileController.imageUrl.value) // Load from network if URL is available
+                      // : profileController.profileImage.value != null
+                      // ? FileImage(profileController.profileImage.value!) // Load from file if picked image is available
                           : AssetImage('images/person.png') as ImageProvider, // Default asset image if both are null
                       backgroundColor: Colors.grey,
                     );

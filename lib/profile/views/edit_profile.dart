@@ -37,10 +37,10 @@ class EditProfile extends StatelessWidget {
                         return CircleAvatar(
                           backgroundColor: Colors.grey,
                           radius: 50,
-                          child: profileController.profileImage.value != null
+                          child: profileController.pickedImage.value != null
                               ? ClipOval(
                             child: Image.file(
-                              profileController.profileImage.value!,
+                              profileController.pickedImage.value!,
                               width: 100,
                               height: 100,
                               fit: BoxFit.cover,
