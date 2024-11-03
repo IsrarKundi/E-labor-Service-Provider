@@ -176,7 +176,7 @@ class AuthenticationController extends GetxController {
         'role': 'service_provider',
         'contact': '122332133',
         'jobCategory': selectedCategory.value,
-        'fcmToken': token, // Attach the FCM token here
+        'fcmToken': token,
       },
     );
     print(response.body);

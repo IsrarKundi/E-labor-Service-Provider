@@ -1,8 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 
 import '../../helper/customcard.dart';
+import 'jobs_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -131,7 +134,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Hire a Service',
+                                'Explore Jobs',
                                 style: TextStyle(
                                   color: Colors.black,
                                   fontSize: 18,
@@ -139,7 +142,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                               ),
                               Text(
-                                'Choose the service you need',
+                                'Explore jobs in your area',
                                 style: TextStyle(
                                   color: Colors.grey[800],
                                   fontSize: 14,
@@ -153,7 +156,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             children: [
                               OutlinedButton.icon(
                                 onPressed: () {
-                                  // Handle button press action here
+                                  Get.to(() => JobsScreen());
                                 },
                                 icon: Icon(
                                   Icons.arrow_forward_ios_rounded,
