@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../controllers/home_controller.dart';
+import 'offer_price_screen.dart';
 
 class JobDetailsScreen extends StatefulWidget {
   final String jobId; // Add jobId parameter
@@ -100,6 +101,12 @@ class _JobDetailsScreenState extends State<JobDetailsScreen> {
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
+                      _homeController.setSelectedJob(_homeController.jobs[_homeController.jobIndex]);
+
+                      showModalBottomSheet(
+                        context: context,
+                        builder: (context) => OfferPriceScreen(jobId: widget.jobId),
+                      );
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color(0xfff67322),

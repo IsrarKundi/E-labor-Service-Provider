@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
+import '../controllers/home_controller.dart';
 
 class OfferPriceScreen extends StatelessWidget {
+  final String jobId; // Pass job ID as a parameter
 
+  OfferPriceScreen({required this.jobId});
 
   @override
   Widget build(BuildContext context) {
+
+    final HomeController homeController = Get.put(HomeController());
 
     late String newTask;
     return Padding(
@@ -14,12 +20,15 @@ class OfferPriceScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          Text('Offer Your Price', style: TextStyle(
-            color: Color(0xfff67322),
-            fontSize: 22,
-            fontWeight: FontWeight.bold
+          Text(
+            'Offer Your Price',
+            style: TextStyle(
+              color: Color(0xfff67322),
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-          ),
+          SizedBox(height: 14,),
           TextField(
             autofocus: true,
             textAlign: TextAlign.center,
@@ -32,14 +41,25 @@ class OfferPriceScreen extends StatelessWidget {
                 borderSide: BorderSide(color: Color(0xfff67322), width: 4.0), // Bottom border color and width when focused
               ),
             ),
-            onChanged: (newValue){
+            keyboardType: TextInputType.number,
+            onChanged: (newValue) {
               newTask = newValue;
             },
           ),
-          SizedBox(height: 26,),
+          SizedBox(height: 36),
           ElevatedButton(
             onPressed: () {
-              Navigator.pop(context);
+              // Parse the input price to an integer
+              int offeredPrice = int.tryParse(newTask) ?? 0;
+              if (offeredPrice > 0) {
+                Navigator.pop(context);
+                // Call the requestJob method
+                homeController.requestJob(jobId, offeredPrice).then((_) {
+                   // Close the screen after the request
+                });
+              } else {
+                Get.snackbar("Invalid Input", "Please enter a valid price");
+              }
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Color(0xfff67322),
@@ -48,12 +68,15 @@ class OfferPriceScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(5),
               ),
             ),
-            child: Text('Offer', style: TextStyle(
+            child: Text(
+              'Offer',
+              style: TextStyle(
                 color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 20
-            ),),
-          )
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+              ),
+            ),
+          ),
         ],
       ),
     );

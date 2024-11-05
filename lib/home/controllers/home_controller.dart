@@ -4,8 +4,22 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeController extends GetxController {
-  var jobs = [].obs; // Observable list to store jobs data
+
   final String baseUrl = 'https://e-labour-app.vercel.app/api/v1';
+
+  late int jobIndex = 0;
+
+
+// List of jobs fetched from the server
+  var jobs = [].obs;
+
+  // Observable variable to store the selected job
+  var selectedJob = {}.obs;
+
+  // Method to set the selected job
+  void setSelectedJob(Map<String, dynamic> job) {
+    selectedJob.value = job;
+  }
 
   @override
   void onInit() {
@@ -94,6 +108,47 @@ class HomeController extends GetxController {
     } catch (e) {
       print("Error fetching job details: $e");
       return null;
+    }
+  }
+
+  // Send a request for a job by passing job ID and offered price
+  Future<void> requestJob(String jobId, int offeredPrice) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('auth_token');
+
+    if (token == null) {
+      print('Error: No token found. Please log in again.');
+      return;
+    }
+
+    final String url = '$baseUrl/service-provider/request-job/$jobId';
+    print("Sending job request to: $url");
+
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: json.encode({
+          'offeredPrice': offeredPrice,
+        }),
+      );
+
+      print("Status Code: ${response.statusCode}");
+      print("Response Body: ${response.body}");
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        print("Job request sent successfully");
+        Get.snackbar("Success", "Job request sent successfully");
+      } else {
+        print("Failed to send job request. Status Code: ${response.statusCode}");
+        Get.snackbar("Error", "Failed to send job request");
+      }
+    } catch (e) {
+      print("Error sending job request: $e");
+      Get.snackbar("Error", "An error occurred while sending job request");
     }
   }
 

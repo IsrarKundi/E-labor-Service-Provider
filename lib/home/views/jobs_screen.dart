@@ -23,25 +23,28 @@ class JobsScreen extends StatelessWidget {
       body: Obx(() {
         if (homeController.jobs.isEmpty) {
           return Center(
-            child: Center(child: CircularProgressIndicator())
+            child: CircularProgressIndicator(),
           );
         }
         return ListView.builder(
           padding: const EdgeInsets.all(8),
           itemCount: homeController.jobs.length,
           itemBuilder: (context, index) {
+            homeController.jobIndex = index;
             final job = homeController.jobs[index];
             final client = job['clientId'];
 
             return GestureDetector(
-              onTap: (){
+              onTap: () {
+                // Set the selected job in the controller
+                homeController.setSelectedJob(job);
+
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => JobDetailsScreen(jobId: job['_id']),
                   ),
                 );
-
               },
               child: Card(
                 margin: const EdgeInsets.symmetric(vertical: 8),
@@ -60,16 +63,16 @@ class JobsScreen extends StatelessWidget {
                             radius: 25,
                           ),
                           SizedBox(width: 16),
-
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
                                 client['name'],
-                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-
-
                               SizedBox(height: 4),
                               Text(
                                 'Rating: ${client['averageRating']}',
@@ -80,13 +83,20 @@ class JobsScreen extends StatelessWidget {
                           Spacer(),
                           ElevatedButton(
                             onPressed: () {
-                              showModalBottomSheet(context: context, builder: (context) => OfferPriceScreen());
+                              // Set the selected job in the controller
+                              homeController.setSelectedJob(job);
 
-                              // Get.to(() => OfferPriceScreen());
+                              showModalBottomSheet(
+                                context: context,
+                                builder: (context) => OfferPriceScreen(jobId: job['_id']),
+                              );
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Color(0xfff67322),
-                              padding: EdgeInsets.symmetric(vertical: 2, horizontal: 16),
+                              padding: EdgeInsets.symmetric(
+                                vertical: 2,
+                                horizontal: 16,
+                              ),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
@@ -107,7 +117,10 @@ class JobsScreen extends StatelessWidget {
                       // Job details
                       Text(
                         'Category: ${job['category']}',
-                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       SizedBox(height: 8),
                       RichText(
@@ -135,12 +148,18 @@ class JobsScreen extends StatelessWidget {
                       SizedBox(height: 8),
                       Text(
                         'Budget: ${job['budget']} pkr',
-                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       SizedBox(height: 8),
                       Text(
                         'Estimated Time: ${job['estimatedTime']} hours',
-                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       SizedBox(height: 16),
                       // Job image
