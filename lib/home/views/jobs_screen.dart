@@ -2,6 +2,7 @@ import 'package:e_labors/home/views/offer_price_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/home_controller.dart';
+import 'client_profile.dart';
 import 'job_detail_screen.dart';
 
 class JobsScreen extends StatelessWidget {
@@ -32,7 +33,13 @@ class JobsScreen extends StatelessWidget {
           itemBuilder: (context, index) {
             homeController.jobIndex = index;
             final job = homeController.jobs[index];
-            final client = job['clientId'];
+            final client = job['clientId'];  // Accessing client data correctly
+            if(job['applied']  == true){
+              print('already applied');
+              homeController.applied.value = 1;
+            } else{
+              print('not applied');
+            }
 
             return GestureDetector(
               onTap: () {
@@ -56,11 +63,17 @@ class JobsScreen extends StatelessWidget {
                       // Client info
                       Row(
                         children: [
-                          CircleAvatar(
-                            backgroundImage: NetworkImage(
-                              client['image'] ?? 'https://via.placeholder.com/50',
+                          GestureDetector(
+                            onTap: () {
+                              // Navigate to the ClientDetailsScreen
+                              Get.to(() => ClientDetailsScreen(clientId: client['_id']));
+                            },
+                            child: CircleAvatar(
+                              backgroundImage: NetworkImage(
+                                client['image'] ?? 'https://via.placeholder.com/50',
+                              ),
+                              radius: 25,
                             ),
-                            radius: 25,
                           ),
                           SizedBox(width: 16),
                           Column(
@@ -84,15 +97,21 @@ class JobsScreen extends StatelessWidget {
                           ElevatedButton(
                             onPressed: () {
                               // Set the selected job in the controller
-                              homeController.setSelectedJob(job);
+                              if(job['applied']  == true){
+                                print('already applied');
+                                homeController.applied.value = 1;
+                              } else {
+                                homeController.setSelectedJob(job);
 
-                              showModalBottomSheet(
-                                context: context,
-                                builder: (context) => OfferPriceScreen(jobId: job['_id']),
-                              );
+                                showModalBottomSheet(
+                                  context: context,
+                                  builder: (context) => OfferPriceScreen(jobId: job['_id']),
+                                );
+                              }
+
                             },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Color(0xfff67322),
+                              backgroundColor:  job['applied'] ? Colors.grey : Color(0xfff67322),
                               padding: EdgeInsets.symmetric(
                                 vertical: 2,
                                 horizontal: 16,
@@ -107,7 +126,7 @@ class JobsScreen extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                                color: job['applied'] ? Colors.black54 : Colors.white,
                               ),
                             ),
                           ),
@@ -131,7 +150,7 @@ class JobsScreen extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.black, // Set color to ensure TextSpan inherits color properly
+                                color: Colors.black,
                               ),
                             ),
                             TextSpan(

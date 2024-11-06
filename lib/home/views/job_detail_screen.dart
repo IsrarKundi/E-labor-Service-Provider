@@ -101,15 +101,20 @@ class _JobDetailsScreenState extends State<JobDetailsScreen> {
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
-                      _homeController.setSelectedJob(_homeController.jobs[_homeController.jobIndex]);
+                      if(_homeController.applied.value == 1){
+                        print('Already applied');
+                      } else{
+                        _homeController.setSelectedJob(_homeController.jobs[_homeController.jobIndex]);
 
-                      showModalBottomSheet(
-                        context: context,
-                        builder: (context) => OfferPriceScreen(jobId: widget.jobId),
-                      );
+                        showModalBottomSheet(
+                          context: context,
+                          builder: (context) => OfferPriceScreen(jobId: widget.jobId),
+                        );
+                      }
+
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xfff67322),
+                      backgroundColor: _homeController.applied == 1 ? Colors.grey : Color(0xfff67322),
                       padding: EdgeInsets.symmetric(vertical: 6, horizontal: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
@@ -121,7 +126,7 @@ class _JobDetailsScreenState extends State<JobDetailsScreen> {
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        color:  _homeController.applied == 1 ? Colors.black54 : Colors.white,
                       ),
                     ),
                   ),

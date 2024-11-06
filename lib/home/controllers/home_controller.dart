@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:get/get_rx/get_rx.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -21,6 +22,7 @@ class HomeController extends GetxController {
     selectedJob.value = job;
   }
 
+  RxInt applied = 0.obs;
   @override
   void onInit() {
     super.onInit();
@@ -52,7 +54,7 @@ class HomeController extends GetxController {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        jobs.value = data['jobs']; // Store the list of jobs in the observable
+        jobs.value = List.from(data['jobs']);  // Use List.from to ensure it's a list
 
         // Optional: Log job IDs
         for (var job in data['jobs']) {
@@ -73,6 +75,7 @@ class HomeController extends GetxController {
       print('Error: An error occurred while fetching jobs - $e');
     }
   }
+
 
   // Fetch job details by passing a job ID
   Future<Map<String, dynamic>?> fetchJobDetails(String jobId) async {
@@ -149,6 +152,53 @@ class HomeController extends GetxController {
     } catch (e) {
       print("Error sending job request: $e");
       Get.snackbar("Error", "An error occurred while sending job request");
+    }
+  }
+
+
+  ///...........................Fetch Client Details.........................
+
+  var clientData = {}.obs;
+  var isLoading = false.obs;
+
+// Method to fetch client details
+  Future<void> fetchClientDetails(String clientId) async {
+    isLoading.value = true;
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('auth_token');
+
+      if (token == null) {
+        print('Error: No token found. Please log in again.');
+        Get.snackbar("Error", "No token found. Please log in again.");
+        isLoading.value = false;
+        return;
+      }
+
+      final String url = '$baseUrl/service-provider/client/$clientId';
+      print("Fetching client details from: $url");
+
+      // Make the API call with authorization header
+      final response = await GetConnect().get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      print('fetch Client Profile: ${response.body}');
+      print('fetch Client Profile: ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+        clientData.value = response.body;
+      } else {
+        Get.snackbar("Error", "Failed to fetch client details");
+      }
+    } catch (e) {
+      Get.snackbar("Error", e.toString());
+      print("Error fetching client details: $e");
+    } finally {
+      isLoading.value = false;
     }
   }
 
