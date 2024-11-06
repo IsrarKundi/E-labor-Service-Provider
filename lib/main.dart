@@ -1,6 +1,7 @@
 import 'package:bot_toast/bot_toast.dart';
 import 'package:e_labors/profile/views/profile_screen.dart';
-import 'package:e_labors/push_notification/controllers/notification_controller.dart';
+import 'package:e_labors/push_notification/controllers/push_notification_controller.dart';
+import 'package:e_labors/push_notification/views/notification_screen.dart';
 import 'package:e_labors/routes/app_routes.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -10,7 +11,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import 'home/views/home_screen.dart';
 import 'chat_screen.dart';
-import 'notification_screen.dart' as custom_notification;
+import 'push_notification/views/notification_screen.dart' as custom_notification;
 
 
 Future<void> main() async {
@@ -18,15 +19,15 @@ Future<void> main() async {
   await Firebase.initializeApp();
 
   // Register the background message handler
-  FirebaseMessaging.onBackgroundMessage(NotificationController.firebaseMessagingBackgroundHandler);
+  FirebaseMessaging.onBackgroundMessage(PushNotificationController.firebaseMessagingBackgroundHandler);
 
   // Ensure the NotificationController is initialized
-  Get.put(NotificationController());
+  Get.put(PushNotificationController());
 
   // Check if the app was launched by a notification
   FirebaseMessaging.instance.getInitialMessage().then((RemoteMessage? message) {
     if (message != null) {
-      Get.find<NotificationController>().onSelectNotification(message.data['payload']);
+      Get.find<PushNotificationController>().onSelectNotification(message.data['payload']);
     }
   });
 
@@ -76,11 +77,11 @@ class _MainScreenState extends State<MainScreen> {
   static final List<Widget> _screens = <Widget>[
     HomeScreen(),
     ChatScreen(),
-    custom_notification.NotificationScreen(),
+    NotificationScreen(),
     ProfileScreen(),
   ];
 
-  NotificationController notificationController = Get.put(NotificationController());
+  PushNotificationController notificationController = Get.put(PushNotificationController());
   @override
   void initState() {
     super.initState();
