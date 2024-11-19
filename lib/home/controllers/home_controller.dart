@@ -4,9 +4,14 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../authentication/controller/authentication_controller.dart';
+
 class HomeController extends GetxController {
 
   final String baseUrl = 'https://e-labour-app.vercel.app/api/v1';
+  var userLocation = {}.obs;
+  var clientLocation = {}.obs;
+  var isLoading = false.obs;
 
   late int jobIndex = 0;
 
@@ -23,13 +28,39 @@ class HomeController extends GetxController {
   }
 
   RxInt applied = 0.obs;
+
+  late Location location = Location(); // Declare a Location object
+
   @override
   void onInit() {
     super.onInit();
+    location = Location();
+    getLocation();
+
+    getLocation().then((_) {
+      print('LATITUDE: ${location.latitude}');
+      print('LONGITUDE: ${location.longitude}');
+    }).catchError((e) {
+      print('Error getting location: $e');
+    });
+    fetchClientLocation();
+
     fetchJobs(); // Fetch jobs when controller is initialized
+
+  }
+
+  Future<void> getLocation() async {
+    try {
+      await location.getLocation(); // Call getLocation on the Location object
+      // Update UI with retrieved coordinates (optional)
+    } catch (e) {
+      print(e);
+      // Handle location retrieval errors (optional)
+    }
   }
 
   Future<void> fetchJobs() async {
+    isLoading.value = true;
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('auth_token');
 
@@ -55,6 +86,7 @@ class HomeController extends GetxController {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         jobs.value = List.from(data['jobs']);  // Use List.from to ensure it's a list
+        isLoading.value = false;
 
         // Optional: Log job IDs
         for (var job in data['jobs']) {
@@ -66,12 +98,18 @@ class HomeController extends GetxController {
           print('Message: ${data['message']}');
           jobs.clear();  // Clear jobs if no jobs found
         } else {
+          isLoading.value = false;
+
           print('Error: No jobs found');
         }
       } else {
+        isLoading.value = false;
+
         print('Error: Failed to load jobs with status code ${response.statusCode}');
       }
     } catch (e) {
+      isLoading.value = false;
+
       print('Error: An error occurred while fetching jobs - $e');
     }
   }
@@ -118,6 +156,7 @@ class HomeController extends GetxController {
   Future<void> requestJob(String jobId, int offeredPrice) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('auth_token');
+    isLoading.value = true;
 
     if (token == null) {
       print('Error: No token found. Please log in again.');
@@ -143,14 +182,24 @@ class HomeController extends GetxController {
       print("Response Body: ${response.body}");
 
       if (response.statusCode == 200 || response.statusCode == 201) {
+
+        fetchJobs();
+        fetchClientLocation();
+        isLoading.value = false;
+
         print("Job request sent successfully");
         Get.snackbar("Success", "Job request sent successfully");
+        Get.back();
       } else {
         print("Failed to send job request. Status Code: ${response.statusCode}");
         Get.snackbar("Error", "Failed to send job request");
+        isLoading.value = false;
+
       }
     } catch (e) {
       print("Error sending job request: $e");
+      isLoading.value = false;
+
       Get.snackbar("Error", "An error occurred while sending job request");
     }
   }
@@ -159,7 +208,6 @@ class HomeController extends GetxController {
   ///...........................Fetch Client Details.........................
 
   var clientData = {}.obs;
-  var isLoading = false.obs;
 
 // Method to fetch client details
   Future<void> fetchClientDetails(String clientId) async {
@@ -197,6 +245,40 @@ class HomeController extends GetxController {
     } catch (e) {
       Get.snackbar("Error", e.toString());
       print("Error fetching client details: $e");
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+
+  Future<void> fetchClientLocation() async {
+    isLoading.value = true;
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('auth_token');
+
+      if (token == null) {
+        Get.snackbar('Error', 'No token found. Please log in again.');
+        return;
+      }
+
+      final url = Uri.parse('$baseUrl/service-provider/client-location');
+      final response = await http.get(
+        url,
+        headers: {'Authorization': 'Bearer $token'},
+      );
+
+      print('Client Location: ${response.body}');
+      print('Client Location: ${response.statusCode}');
+
+
+      if (response.statusCode == 200) {
+        clientLocation.value = json.decode(response.body);
+      } else {
+        // Get.snackbar('Error', 'Failed to fetch client location.');
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'An error occurred while fetching client location.');
     } finally {
       isLoading.value = false;
     }

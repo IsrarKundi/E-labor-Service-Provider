@@ -1,4 +1,5 @@
 import 'package:bot_toast/bot_toast.dart';
+import 'package:e_labors/home/views/jobs_screen.dart';
 import 'package:e_labors/profile/views/profile_screen.dart';
 import 'package:e_labors/push_notification/controllers/push_notification_controller.dart';
 import 'package:e_labors/push_notification/views/notification_screen.dart';
@@ -76,7 +77,7 @@ class _MainScreenState extends State<MainScreen> {
 
   static final List<Widget> _screens = <Widget>[
     HomeScreen(),
-    ChatScreen(),
+    JobsScreen(),
     NotificationScreen(),
     ProfileScreen(),
   ];
@@ -120,8 +121,8 @@ class _MainScreenState extends State<MainScreen> {
               label: 'Home',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.chat),
-              label: 'Chat',
+              icon: Icon(Icons.work),
+              label: 'Jobs',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.notifications),

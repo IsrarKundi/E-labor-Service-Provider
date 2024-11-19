@@ -146,7 +146,7 @@ class AuthenticationController extends GetxController {
 
     FirebaseMessaging messaging = FirebaseMessaging.instance;
     String? token = await messaging.getToken();
-    print("FCM Token: $token"); // You can send the token to your backend if needed
+    print("FCM Token: $token");
 
     final String username = nameController.text.trim();
     final String email = emailController.text.trim();
@@ -353,7 +353,7 @@ class Location {
   Future<void> getLocation() async {
     try {
       Position position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.low);
+          desiredAccuracy: LocationAccuracy.high);
       longitude = position.longitude;
       latitude = position.latitude;
 

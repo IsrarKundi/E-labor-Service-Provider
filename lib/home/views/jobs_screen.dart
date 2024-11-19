@@ -122,11 +122,11 @@ class JobsScreen extends StatelessWidget {
                               elevation: 3,
                             ),
                             child: Text(
-                              'Apply',
+                              job['applied'] ? 'Applied' :'Apply',
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
-                                color: job['applied'] ? Colors.black54 : Colors.white,
+                                color: Colors.white70,
                               ),
                             ),
                           ),
